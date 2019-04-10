@@ -87,6 +87,7 @@ public class SimplePaint extends Application {
     private int shapeCount = 0;
     HBox bottom;
     Label shapeCountLabel = new Label(Integer.toString(shapeCount));
+    Label xyLabel = new Label("(0, 0)");
 
 
     public void start(Stage stage) {
@@ -101,9 +102,7 @@ public class SimplePaint extends Application {
         canvas.setOnMousePressed( e -> mousePressed(e) );
         canvas.setOnMouseDragged( e -> mouseDragged(e) );
         canvas.setOnMouseReleased( e -> mouseReleased(e) );
-
-
-
+        canvas.setOnMouseMoved( e -> mouseMoved(e) );
 
 
         VBox paneForRadioButtons = new VBox(20);
@@ -140,10 +139,8 @@ public class SimplePaint extends Application {
 
         bottom = new HBox(10);
         bottom.setPadding(new Insets(5, 5, 5, 5));
+        bottom.getChildren().add(xyLabel);
         Text text = new Text(50, 50, "Number of Shapes: ");
-        //Text shapeText = new Text(50, 50, "Number of Shapes: " + shapeCount);
-        //Label myLabel = new Label("Start");
-        //myLabel.textProperty().bind(Integer.toString(shapeCount));
         bottom.getChildren().add(text);
         bottom.getChildren().add(shapeCountLabel);
 
@@ -212,7 +209,10 @@ public class SimplePaint extends Application {
 
     } // end changeColor()
 
+    public void mouseMoved(MouseEvent event) {
+        xyLabel.setText("(" + event.getX() + ", " + event.getY() + ")");
 
+    }
 
     /**
      * This is called when the user presses the mouse anywhere in the canvas.
@@ -257,8 +257,6 @@ public class SimplePaint extends Application {
             g.setFill( palette[currentColorNum] );
             g.fillOval((int)evt.getX(), (int)evt.getY(), 15, 15);
             updateShapeCount();
-            //shapeCount++;
-            //System.out.println(shapeCount);
         }
 
 
