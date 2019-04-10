@@ -25,6 +25,7 @@ public class CSPaint extends Application {
     protected Text text = new Text(50, 50, "CSPaint");
     private GraphicsContext g;
     private Canvas canvas;
+    private Pane mainPane;
     private int currentColorNum = 0;
     private final Color[] palette = {
         Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,
@@ -87,7 +88,7 @@ public class CSPaint extends Application {
       // Create a scene and place it in the stage
       canvas = new Canvas();
       g = canvas.getGraphicsContext2D();
-
+      drawLines(g);
       Scene scene = new Scene(getPane(), 650, 450);
       primaryStage.setTitle("CSPaint"); // Set the stage title
       primaryStage.setScene(scene); // Place the scene in the stage
@@ -224,7 +225,15 @@ public class CSPaint extends Application {
 
     } // end mouseDragged()
 
+    private void drawLines(GraphicsContext gc) {
 
+        gc.beginPath();
+        gc.moveTo(30.5, 30.5);
+        gc.lineTo(150.5, 30.5);
+        gc.lineTo(150.5, 150.5);
+        gc.lineTo(30.5, 30.5);
+        gc.stroke();
+    }
 
 
 }
