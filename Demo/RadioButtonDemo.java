@@ -29,9 +29,7 @@ public class RadioButtonDemo extends CheckBoxDemo {
     rbBlue.setToggleGroup(group);
 
     rbRed.setOnAction(e -> {
-      if (rbRed.isSelected()) {
         text.setFill(Color.RED);
-      }
     });
 
     rbGreen.setOnAction(e -> {
