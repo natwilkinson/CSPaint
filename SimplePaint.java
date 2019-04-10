@@ -84,6 +84,8 @@ public class SimplePaint extends Application {
     private RadioButton drawBt;
     private RadioButton eraseBt;
     private RadioButton circleBt;
+    private int shapeCount = 0;
+    HBox bottom;
 
 
     public void start(Stage stage) {
@@ -129,27 +131,23 @@ public class SimplePaint extends Application {
         //         }
         // });
 
-
-
-
-
         BorderPane pane = new BorderPane();
         pane.setLeft(paneForRadioButtons);
 
         Pane mainPane = new Pane(canvas);
 
 
-        HBox bottom = new HBox(10);
+        bottom = new HBox(10);
         bottom.setPadding(new Insets(5, 5, 5, 5));
-        Text text = new Text(50, 50, "CSPaint");
-
+        Text text = new Text(50, 50, "Number of Shapes: ");
+        //Text shapeText = new Text(50, 50, "Number of Shapes: " + shapeCount);
+        //Label myLabel = new Label("Start");
+        //myLabel.textProperty().bind(Integer.toString(shapeCount));
         bottom.getChildren().add(text);
+        bottom.getChildren().add((new Label(Integer.toString(shapeCount))));
+
         pane.setBottom(bottom);
         bottom.setStyle("-fx-background-color: pink");
-
-
-
-
 
         Pane root = new Pane(canvas);
         pane.setCenter(root);
@@ -160,6 +158,12 @@ public class SimplePaint extends Application {
         stage.show();
     }
 
+    public void updateShapeCount() {
+        shapeCount++;
+        bottom.getChildren().add((new Label(Integer.toString(shapeCount))));
+        //Text shapeText = new Text(50, 50, "Number of Shapes: " + shapeCount);
+        //bottom.getChildren().add(shapeText);
+    }
 
     /**
      * Fills the canvas with white and draws the color palette and (simulated)
@@ -249,11 +253,11 @@ public class SimplePaint extends Application {
 
         }
         else if (circleBt.isSelected()) {
-            //g.strokeOval((int)evt.getX(), (int)evt.getY(), 15, 15);
             g.setFill( palette[currentColorNum] );
             g.fillOval((int)evt.getX(), (int)evt.getY(), 15, 15);
-            //Circle circle = new Circle((int)evt.getX(), (int)evt.getY(), 15);
-
+            updateShapeCount();
+            //shapeCount++;
+            //System.out.println(shapeCount);
         }
 
 
