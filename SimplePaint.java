@@ -22,6 +22,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.scene.control.Toggle;
 import javafx.geometry.Insets;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
@@ -33,6 +34,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.*;
 import javafx.scene.input.MouseEvent;
+
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.event.ActionEvent;
+import javafx.event.*;
+import javafx.collections.*;
+import javafx.stage.Stage;
+import javafx.scene.text.Text.*;
+import javafx.scene.text.*;
+import javafx.beans.value.*;
 
 
 
@@ -53,51 +67,33 @@ public class SimplePaint extends Application {
         launch(args);
     }
 
-    //-----------------------------------------------------------------
-
-
-    /*
-     * Array of colors corresponding to available colors in the palette.
-     * (The last color is a slightly darker version of yellow for
-     * better visibility on a white background.)
-     */
     private final Color[] palette = {
             Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,
-            Color.CYAN, Color.MAGENTA, Color.color(0.95,0.9,0)
+            Color.CYAN, Color.MAGENTA,
     };
 
-    private int currentColorNum = 0;  // The currently selected drawing color,
-                                      //   coded as an index into the above array
+    private int currentColorNum = 0;
 
-    private double prevX, prevY;   // The previous location of the mouse, when
-                                   // the user is drawing by dragging the mouse.
-
+    private double prevX, prevY;
     private boolean dragging;   // This is set to true while the user is drawing.
 
     private Canvas canvas;  // The canvas on which everything is drawn.
 
     private GraphicsContext g;  // For drawing on the canvas.
 
-
-    /**
-     * The start() method creates the GUI, sets up event listening, and
-     * shows the window on the screen.
-     */
     public void start(Stage stage) {
 
         /* Create the canvans and draw its content for the first time. */
 
-        canvas = new Canvas(600,400);
+        canvas = new Canvas(650,450);
         g = canvas.getGraphicsContext2D();
         clearAndDrawPalette();
 
-        /* Respond to mouse events on the canvas, by calling methods in this class. */
 
         canvas.setOnMousePressed( e -> mousePressed(e) );
         canvas.setOnMouseDragged( e -> mouseDragged(e) );
         canvas.setOnMouseReleased( e -> mouseReleased(e) );
 
-        /* Configure the GUI and show the window. */
 
 
 
@@ -106,25 +102,34 @@ public class SimplePaint extends Application {
         paneForRadioButtons.setPadding(new Insets(5, 5, 5, 5));
 
         RadioButton drawBt = new RadioButton("Draw");
+        drawBt.setSelected(true);
         RadioButton eraseBt = new RadioButton("Erase");
         RadioButton circleBt = new RadioButton("Circle");
-        //BorderPane paneForTextField = new BorderPane();
-        //paneForTextField.setLeft(new Label("Color:"));
-        //TextField tf = new TextField();
+        BorderPane paneForTextField = new BorderPane();
+        paneForTextField.setLeft(new Label("Color:"));
+        TextField tf = new TextField();
         paneForRadioButtons.setStyle("-fx-background-color: pink");
-        //tf.setAlignment(Pos.BOTTOM_RIGHT);
-        //paneForTextField.setCenter(tf);
-        //pane.setTop(paneForTextField);
-        //paneForRadioButtons.getChildren().addAll(drawBt, eraseBt, circleBt, paneForTextField, tf);
-        paneForRadioButtons.getChildren().addAll(drawBt, eraseBt, circleBt);
+        tf.setAlignment(Pos.BOTTOM_RIGHT);
+        paneForTextField.setCenter(tf);
+        paneForRadioButtons.getChildren().addAll(drawBt, eraseBt, circleBt, paneForTextField, tf);
 
         ToggleGroup group = new ToggleGroup();
         drawBt.setToggleGroup(group);
         eraseBt.setToggleGroup(group);
         circleBt.setToggleGroup(group);
 
+        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+            public void changed(ObservableValue<? extends Toggle> ov,
+                Toggle old_toggle, Toggle new_toggle) {
+                    System.out.println("TOGGLE");
+                }
+        });
+
+
+
+
+
         BorderPane pane = new BorderPane();
-        //pane.setBottom(bottomText);
         pane.setLeft(paneForRadioButtons);
 
         Pane mainPane = new Pane(canvas);
@@ -132,8 +137,6 @@ public class SimplePaint extends Application {
 
         HBox bottom = new HBox(10);
         bottom.setPadding(new Insets(5, 5, 5, 5));
-        //bottom.setStyle("-fx-border-color: black");
-        //bottom.setStyle("-fx-border-width: 2px; -fx-border-color: black");
         Text text = new Text(50, 50, "CSPaint");
 
         bottom.getChildren().add(text);
@@ -167,48 +170,8 @@ public class SimplePaint extends Application {
         g.setFill(Color.WHITE);
         g.fillRect(0,0,width,height);
 
-        int colorSpacing = (height - 56) / 7;
-        // Distance between the top of one colored rectangle in the palette
-        // and the top of the rectangle below it.  The height of the
-        // rectangle will be colorSpacing - 3.  There are 7 colored rectangles,
-        // so the available space is divided by 7.  The available space allows
-        // for the gray border and the 50-by-50 CLEAR button.
-
-        /* Draw a 3-pixel border around the canvas in gray.  This has to be
-             done by drawing three rectangles of different sizes. */
-
-        g.setStroke(Color.GRAY);
-        g.setLineWidth(3);
-        g.strokeRect(1.5, 1.5, width-3, height-3);
-
-        /* Draw a 56-pixel wide gray rectangle along the right edge of the canvas.
-             The color palette and Clear button will be drawn on top of this.
-             (This covers some of the same area as the border I just drew. */
-
-        g.setFill(Color.GRAY);
-        g.fillRect(width - 56, 0, 56, height);
-
-        /* Draw the "Clear button" as a 50-by-50 white rectangle in the lower right
-             corner of the canvas, allowing for a 3-pixel border. */
-
-        g.setFill(Color.WHITE);
-        g.fillRect(width-53,  height-53, 50, 50);
-        g.setFill(Color.BLACK);
-        g.fillText("CLEAR", width-48, height-23);
-
-        /* Draw the seven color rectangles. */
-
-        for (int N = 0; N < 7; N++) {
-            g.setFill( palette[N] );
-            g.fillRect(width-53, 3 + N*colorSpacing, 50, colorSpacing-3);
-        }
-
-        /* Draw a 2-pixel white border around the color rectangle
-             of the current drawing color. */
-
         g.setStroke(Color.WHITE);
         g.setLineWidth(2);
-        g.strokeRect(width-54, 2 + currentColorNum*colorSpacing, 52, colorSpacing-1);
 
     } // end clearAndDrawPalette()
 
@@ -261,24 +224,11 @@ public class SimplePaint extends Application {
         int width = (int)canvas.getWidth();    // Width of the canvas.
         int height = (int)canvas.getHeight();  // Height of the canvas.
 
-        if (x > width - 53) {
-            // User clicked to the right of the drawing area.
-            // This click is either on the clear button or
-            // on the color palette.
-            if (y > height - 53)
-                clearAndDrawPalette();  //  Clicked on "CLEAR button".
-            else
-                changeColor(y);  // Clicked on the color palette.
-        }
-        else if (x > 3 && x < width - 56 && y > 3 && y < height - 3) {
-            // The user has clicked on the white drawing area.
-            // Start drawing a curve from the point (x,y).
             prevX = x;
             prevY = y;
             dragging = true;
             g.setLineWidth(2);  // Use a 2-pixel-wide line for drawing.
             g.setStroke( palette[currentColorNum] );
-        }
 
     } // end mousePressed()
 
@@ -307,16 +257,6 @@ public class SimplePaint extends Application {
 
         double x = evt.getX();   // x-coordinate of mouse.
         double y = evt.getY();   // y-coordinate of mouse.
-
-        if (x < 3)                          // Adjust the value of x,
-            x = 3;                           //   to make sure it's in
-        if (x > canvas.getWidth() - 57)       //   the drawing area.
-            x = (int)canvas.getWidth() - 57;
-
-        if (y < 3)                          // Adjust the value of y,
-            y = 3;                           //   to make sure it's in
-        if (y > canvas.getHeight() - 4)       //   the drawing area.
-            y = canvas.getHeight() - 4;
 
         g.strokeLine(prevX, prevY, x, y);  // Draw the line.
 
