@@ -86,6 +86,7 @@ public class SimplePaint extends Application {
     private RadioButton circleBt;
     private int shapeCount = 0;
     HBox bottom;
+    Label shapeCountLabel = new Label(Integer.toString(shapeCount));
 
 
     public void start(Stage stage) {
@@ -144,7 +145,7 @@ public class SimplePaint extends Application {
         //Label myLabel = new Label("Start");
         //myLabel.textProperty().bind(Integer.toString(shapeCount));
         bottom.getChildren().add(text);
-        bottom.getChildren().add((new Label(Integer.toString(shapeCount))));
+        bottom.getChildren().add(shapeCountLabel);
 
         pane.setBottom(bottom);
         bottom.setStyle("-fx-background-color: pink");
@@ -160,7 +161,7 @@ public class SimplePaint extends Application {
 
     public void updateShapeCount() {
         shapeCount++;
-        bottom.getChildren().add((new Label(Integer.toString(shapeCount))));
+        shapeCountLabel.setText(Integer.toString(shapeCount));
         //Text shapeText = new Text(50, 50, "Number of Shapes: " + shapeCount);
         //bottom.getChildren().add(shapeText);
     }
