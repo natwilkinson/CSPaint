@@ -80,6 +80,10 @@ public class SimplePaint extends Application {
     private Canvas canvas;  // The canvas on which everything is drawn.
 
     private GraphicsContext g;  // For drawing on the canvas.
+    private RadioButton drawBt;
+    private RadioButton eraseBt;
+    private RadioButton circleBt;
+
 
     public void start(Stage stage) {
 
@@ -101,10 +105,10 @@ public class SimplePaint extends Application {
         VBox paneForRadioButtons = new VBox(20);
         paneForRadioButtons.setPadding(new Insets(5, 5, 5, 5));
 
-        RadioButton drawBt = new RadioButton("Draw");
+        drawBt = new RadioButton("Draw");
         drawBt.setSelected(true);
-        RadioButton eraseBt = new RadioButton("Erase");
-        RadioButton circleBt = new RadioButton("Circle");
+        eraseBt = new RadioButton("Erase");
+        circleBt = new RadioButton("Circle");
         BorderPane paneForTextField = new BorderPane();
         paneForTextField.setLeft(new Label("Color:"));
         TextField tf = new TextField();
@@ -118,12 +122,11 @@ public class SimplePaint extends Application {
         eraseBt.setToggleGroup(group);
         circleBt.setToggleGroup(group);
 
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-            public void changed(ObservableValue<? extends Toggle> ov,
-                Toggle old_toggle, Toggle new_toggle) {
-                    System.out.println("TOGGLE");
-                }
-        });
+        // group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+        //     public void changed(ObservableValue<? extends Toggle> ov,
+        //         Toggle old_toggle, Toggle new_toggle) {
+        //         }
+        // });
 
 
 
@@ -212,8 +215,8 @@ public class SimplePaint extends Application {
      * (Or do nothing if user clicks on the border.)
      */
     public void mousePressed(MouseEvent evt) {
-
-        if (dragging == true)  // Ignore mouse presses that occur
+        if (drawBt.isSelected()) {
+            if (dragging == true)  // Ignore mouse presses that occur
             return;            //    when user is already drawing a curve.
                                //    (This can happen if the user presses
                                //    two mouse buttons at the same time.)
@@ -229,6 +232,14 @@ public class SimplePaint extends Application {
             dragging = true;
             g.setLineWidth(2);  // Use a 2-pixel-wide line for drawing.
             g.setStroke( palette[currentColorNum] );
+        }
+        else if (eraseBt.isSelected()) {
+
+        }
+        else if (circleBt.isSelected()) {
+
+        }
+
 
     } // end mousePressed()
 
