@@ -47,6 +47,7 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text.*;
 import javafx.scene.text.*;
 import javafx.beans.value.*;
+import javafx.scene.shape.Circle;
 
 
 
@@ -221,22 +222,37 @@ public class SimplePaint extends Application {
                                //    (This can happen if the user presses
                                //    two mouse buttons at the same time.)
 
-        int x = (int)evt.getX();   // x-coordinate where the user clicked.
-        int y = (int)evt.getY();   // y-coordinate where the user clicked.
+            int x = (int)evt.getX();   // x-coordinate where the user clicked.
+            int y = (int)evt.getY();   // y-coordinate where the user clicked.
 
-        int width = (int)canvas.getWidth();    // Width of the canvas.
-        int height = (int)canvas.getHeight();  // Height of the canvas.
+            int width = (int)canvas.getWidth();    // Width of the canvas.
+            int height = (int)canvas.getHeight();  // Height of the canvas.
 
-            prevX = x;
-            prevY = y;
-            dragging = true;
-            g.setLineWidth(2);  // Use a 2-pixel-wide line for drawing.
-            g.setStroke( palette[currentColorNum] );
+                prevX = x;
+                prevY = y;
+                dragging = true;
+                g.setLineWidth(2);  // Use a 2-pixel-wide line for drawing.
+                g.setStroke( palette[currentColorNum] );
         }
         else if (eraseBt.isSelected()) {
+            int x = (int)evt.getX();   // x-coordinate where the user clicked.
+            int y = (int)evt.getY();   // y-coordinate where the user clicked.
+
+            int width = (int)canvas.getWidth();    // Width of the canvas.
+            int height = (int)canvas.getHeight();  // Height of the canvas.
+
+                prevX = x;
+                prevY = y;
+                dragging = true;
+                g.setLineWidth(10);  // Use a 2-pixel-wide line for drawing.
+                g.setStroke( Color.WHITE );
 
         }
         else if (circleBt.isSelected()) {
+            //g.strokeOval((int)evt.getX(), (int)evt.getY(), 15, 15);
+            g.setFill( palette[currentColorNum] );
+            g.fillOval((int)evt.getX(), (int)evt.getY(), 15, 15);
+            //Circle circle = new Circle((int)evt.getX(), (int)evt.getY(), 15);
 
         }
 
