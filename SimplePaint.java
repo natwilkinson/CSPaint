@@ -34,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyEvent;
 
 
 import javafx.application.Application;
@@ -48,6 +49,10 @@ import javafx.scene.text.Text.*;
 import javafx.scene.text.*;
 import javafx.beans.value.*;
 import javafx.scene.shape.Circle;
+import java.util.ArrayList;
+import javafx.scene.input.KeyCode;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 
 
@@ -67,18 +72,12 @@ public class SimplePaint extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
-    private final Color[] palette = {
-            Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,
-            Color.CYAN, Color.MAGENTA,
-    };
-
-    private int currentColorNum = 0;
-
+    private Color currentColor = Color.BLACK;
     private double prevX, prevY;
     private boolean dragging;   // This is set to true while the user is drawing.
-
+    private TextField tf;
     private Canvas canvas;  // The canvas on which everything is drawn.
+    Alert alert;
 
     private GraphicsContext g;  // For drawing on the canvas.
     private RadioButton drawBt;
@@ -88,6 +87,7 @@ public class SimplePaint extends Application {
     HBox bottom;
     Label shapeCountLabel = new Label(Integer.toString(shapeCount));
     Label xyLabel = new Label("(0, 0)");
+    ArrayList<Object[]> shapeList = new ArrayList<Object[]>();
 
 
     public void start(Stage stage) {
@@ -96,8 +96,14 @@ public class SimplePaint extends Application {
 
         canvas = new Canvas(650,450);
         g = canvas.getGraphicsContext2D();
-        clearAndDrawPalette();
+        int width = (int)canvas.getWidth();    // Width of the canvas.
+        int height = (int)canvas.getHeight();  // Height of the canvas.
 
+        g.setFill(Color.WHITE);
+        g.fillRect(0,0,width,height);
+
+        g.setStroke(Color.WHITE);
+        g.setLineWidth(2);
 
         canvas.setOnMousePressed( e -> mousePressed(e) );
         canvas.setOnMouseDragged( e -> mouseDragged(e) );
@@ -114,7 +120,7 @@ public class SimplePaint extends Application {
         circleBt = new RadioButton("Circle");
         BorderPane paneForTextField = new BorderPane();
         paneForTextField.setLeft(new Label("Color:"));
-        TextField tf = new TextField();
+        tf = new TextField();
         paneForRadioButtons.setStyle("-fx-background-color: pink");
         tf.setAlignment(Pos.BOTTOM_RIGHT);
         paneForTextField.setCenter(tf);
@@ -124,6 +130,8 @@ public class SimplePaint extends Application {
         drawBt.setToggleGroup(group);
         eraseBt.setToggleGroup(group);
         circleBt.setToggleGroup(group);
+
+        tf.setOnKeyPressed(e -> keyPressed(e));
 
         // group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
         //     public void changed(ObservableValue<? extends Toggle> ov,
@@ -163,49 +171,33 @@ public class SimplePaint extends Application {
         //bottom.getChildren().add(shapeText);
     }
 
-    /**
-     * Fills the canvas with white and draws the color palette and (simulated)
-     * "Clear" button on the right edge of the canvas.  This method is called when
-     * the canvas is created and when the user clicks "Clear."
-     */
-    public void clearAndDrawPalette() {
-
-        int width = (int)canvas.getWidth();    // Width of the canvas.
-        int height = (int)canvas.getHeight();  // Height of the canvas.
-
-        g.setFill(Color.WHITE);
-        g.fillRect(0,0,width,height);
-
-        g.setStroke(Color.WHITE);
-        g.setLineWidth(2);
-
-    } // end clearAndDrawPalette()
+    public void keyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            changeColor(tf.getText());
+            //System.out.println(tf.getText());
+        }
+    }
 
 
     /**
      * Change the drawing color after the user has clicked the
      * mouse on the color palette at a point with y-coordinate y.
      */
-    private void changeColor(int y) {
-
-        int width = (int)canvas.getWidth();
-        int height = (int)canvas.getHeight();
-        int colorSpacing = (height - 56) / 7;  // Space for one color rectangle.
-        int newColor = y / colorSpacing;       // Which color number was clicked?
-
-        if (newColor < 0 || newColor > 6)      // Make sure the color number is valid.
-            return;
-
-        /* Remove the highlight from the current color, by drawing over it in gray.
-             Then change the current drawing color and draw a highlight around the
-             new drawing color.  */
-
-        g.setLineWidth(2);
-        g.setStroke(Color.GRAY);
-        g.strokeRect(width-54, 2 + currentColorNum*colorSpacing, 52, colorSpacing-1);
-        currentColorNum = newColor;
-        g.setStroke(Color.WHITE);
-        g.strokeRect(width-54, 2 + currentColorNum*colorSpacing, 52, colorSpacing-1);
+    private void changeColor(String textFieldColor) {
+        if (textFieldColor != null) {
+            try {
+               currentColor = Color.valueOf(textFieldColor);
+            } catch (IllegalArgumentException e) {
+                alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Invalid Color Warning");
+                alert.setHeaderText("You've chosen an invalid color!");
+                alert.setContentText("Type in another color.");
+                alert.showAndWait();
+                //System.out.println("bad color");
+            }
+        } else {
+            currentColor = Color.BLACK;
+        }
 
     } // end changeColor()
 
@@ -214,21 +206,14 @@ public class SimplePaint extends Application {
 
     }
 
-    /**
-     * This is called when the user presses the mouse anywhere in the canvas.
-     * There are three possible responses, depending on where the user clicked:
-     * Change the current color, clear the drawing, or start drawing a curve.
-     * (Or do nothing if user clicks on the border.)
-     */
+
     public void mousePressed(MouseEvent evt) {
         if (drawBt.isSelected()) {
-            if (dragging == true)  // Ignore mouse presses that occur
-            return;            //    when user is already drawing a curve.
-                               //    (This can happen if the user presses
-                               //    two mouse buttons at the same time.)
-
-            int x = (int)evt.getX();   // x-coordinate where the user clicked.
-            int y = (int)evt.getY();   // y-coordinate where the user clicked.
+            if (dragging == true) {
+                return;
+            }
+            int x = (int)evt.getX();
+            int y = (int)evt.getY();
 
             int width = (int)canvas.getWidth();    // Width of the canvas.
             int height = (int)canvas.getHeight();  // Height of the canvas.
@@ -236,27 +221,36 @@ public class SimplePaint extends Application {
                 prevX = x;
                 prevY = y;
                 dragging = true;
-                g.setLineWidth(2);  // Use a 2-pixel-wide line for drawing.
-                g.setStroke( palette[currentColorNum] );
+                g.setLineWidth(4);  // Use a 2-pixel-wide line for drawing.
+                g.setStroke(currentColor);
         }
         else if (eraseBt.isSelected()) {
             int x = (int)evt.getX();   // x-coordinate where the user clicked.
             int y = (int)evt.getY();   // y-coordinate where the user clicked.
-
+            Integer[] point = {x, y};
+            //System.out.println((int)evt.getX());
+            //shapeList.add(point);
+            //if (shapeList.contains(point)) {
+            //    System.out.println("erased");
+            //}
             int width = (int)canvas.getWidth();    // Width of the canvas.
             int height = (int)canvas.getHeight();  // Height of the canvas.
 
                 prevX = x;
                 prevY = y;
                 dragging = true;
-                g.setLineWidth(10);  // Use a 2-pixel-wide line for drawing.
+                g.setLineWidth(20);
                 g.setStroke( Color.WHITE );
 
         }
         else if (circleBt.isSelected()) {
-            g.setFill( palette[currentColorNum] );
-            g.fillOval((int)evt.getX(), (int)evt.getY(), 15, 15);
+            g.setFill(currentColor);
+            g.fillOval((int)evt.getX(), (int)evt.getY(), 30, 30);
+            //Integer[] point = {(int)evt.getX(), (int)evt.getY()};
+            //System.out.println((int)evt.getX());
+            //shapeList.add(point);
             updateShapeCount();
+            //System.out.println(shapeList);
         }
 
 
