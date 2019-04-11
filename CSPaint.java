@@ -168,31 +168,31 @@ public class CSPaint extends Application {
 
     }
     /**
-     * @param evt mouse getting moved
+     * @param event mouse getting moved
      */
-    public void mouseMoved(MouseEvent evt) {
-        xyLabel.setText("(" + evt.getX() + ", " + evt.getY() + ")");
+    public void mouseMoved(MouseEvent event) {
+        xyLabel.setText("(" + event.getX() + ", " + event.getY() + ")");
 
     }
 
     /**
-     * @param evt mouse getting pressed
+     * @param event mouse getting pressed
      */
-    public void mousePressed(MouseEvent evt) {
+    public void mousePressed(MouseEvent event) {
         if (drawBt.isSelected()) {
             if (dragging) {
                 return;
             }
-            int x = (int) evt.getX();
-            int y = (int) evt.getY();
+            int x = (int) event.getX();
+            int y = (int) event.getY();
             prevX = x;
             prevY = y;
             dragging = true;
             gc.setLineWidth(4);
             gc.setStroke(currentColor);
         } else if (eraseBt.isSelected()) {
-            int x = (int) evt.getX();
-            int y = (int) evt.getY();
+            int x = (int) event.getX();
+            int y = (int) event.getY();
             prevX = x;
             prevY = y;
             dragging = true;
@@ -200,27 +200,27 @@ public class CSPaint extends Application {
             gc.setStroke(Color.WHITE);
         } else if (circleBt.isSelected()) {
             gc.setFill(currentColor);
-            gc.fillOval((int) evt.getX(), (int) evt.getY(), 30, 30);
+            gc.fillOval((int) event.getX(), (int) event.getY(), 30, 30);
             updateShapeCount();
         }
 
 
     }
     /**
-     * @param evt mouse getting released
+     * @param event mouse getting released
      */
-    public void mouseReleased(MouseEvent evt) {
+    public void mouseReleased(MouseEvent event) {
         dragging = false;
     }
     /**
      *
-     * @param evt mouse getting dragged
+     * @param event mouse getting dragged
      */
-    public void mouseDragged(MouseEvent evt) {
-        double x = evt.getX();
-        double y = evt.getY();
+    public void mouseDragged(MouseEvent event) {
+        double x = event.getX();
+        double y = event.getY();
         if (x >= 0 && x <= 650 && y >= 0 && y <= 450) {
-            xyLabel.setText("(" + evt.getX() + ", " + evt.getY() + ")");
+            xyLabel.setText("(" + event.getX() + ", " + event.getY() + ")");
         }
 
 
