@@ -3,8 +3,17 @@
 // In order to help learn course concepts, I worked on the homework with
 //[give the names of the people you
 // worked with], discussed homework topics and issues with [provide names of people], and/or
-//consulted related material that can be found at [cite any other materials not provided as
-// course materials for CS 1331 that assisted your learning].
+// consulted related material that can be found at:
+    // https://www.geeksforgeeks.org/overriding-equals-method-in-java/
+    // https://www.java2s.com/Code/Java/JavaFX/ChangeLabeltextinButtonclickevent.htm
+    // https://docs.oracle.com/javase/tutorial/uiswing/events/mouselistener.html
+    // https://docs.oracle.com/javase/8/javafx/api/javafx/scene/canvas/GraphicsContext.html#setLineWidth-double-
+    // https://docs.oracle.com/javase/8/javafx/api/javafx/scene/canvas/GraphicsContext.html
+    // https://stackoverflow.com/questions/25252558/javafx-how-to-make-enter-key-submit-textarea/25252616
+    // https://docs.oracle.com/javafx/2/api/javafx/scene/input/KeyCode.html
+    // https://www.programcreek.com/java-api-examples/?class=javafx.scene.paint.Color&method=valueOf
+    // http://java-buddy.blogspot.com/2013/04/save-canvas-to-png-file.html
+    //
 
 // Imports for javafx
 import javafx.application.Application;
@@ -29,6 +38,21 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Button;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.image.WritableImage;
+import javax.imageio.ImageIO;
+import javafx.stage.FileChooser;
+import java.awt.image.BufferedImage;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritablePixelFormat;
 
 /**
  *@author Natalie Wilkinson
@@ -50,14 +74,22 @@ public class CSPaint extends Application {
 
     private VBox left; // creates a VBox
     // In the VBox there are a set of radio buttons and a TextField for choosing color
+    private Button save;
     // setof radio buttons for drawing, erasing, and inserting shapes:
     private RadioButton drawBt;
+    private Slider drawSize;
+    private Label drawSizeLabel;
+    private double currentSize = 4;
     private RadioButton eraseBt;
+    /* private Slider eraseSize;
+    private Label eraseSizeLabel;
+    private double currentEraseSize = 20; */
     private RadioButton circleBt;
     // a new textfield for the user to enter a color:
     private TextField colorTextBox;
     private Alert colorAlert; // new Alert object used to alert user if they entered an invalid color
     private BorderPane colorTextLabel;
+
 
     private HBox bottom; // creates an HBox
     // In the HBox there is the graphical coordinates of the mouse and the number of shapes:
@@ -89,11 +121,33 @@ public class CSPaint extends Application {
 
         left = new VBox(20);
         left.setPadding(new Insets(5, 5, 5, 5));
-
+        save = new Button("save");
+        save.setOnMousePressed(e -> savePic(e));
         drawBt = new RadioButton("Draw");
+        // set up penSize slider
+        drawSize = new Slider(0.1, 30, 4);
+        drawSizeLabel = new Label("Slide to change pen size:\n" + "(radius = " + (int) currentSize/2 + " pixels)");
+        //drawSizeLabel.setLeft(new Label("Slide to change pen size:"));
+        drawSize.setShowTickMarks(true);
+        drawSize.setShowTickLabels(true);
+        drawSize.setMajorTickUnit(10);
+        drawSize.setBlockIncrement(10);
+        drawSize.setOnMouseReleased(e -> changeDrawSize(e));
+        drawSize.setOnMouseReleased(e -> changeDrawSize(e));
+
         drawBt.setSelected(true);
         eraseBt = new RadioButton("Erase");
         circleBt = new RadioButton("Circle");
+
+        /* eraseSize = new Slider(1, 40, 20);
+        eraseSizeLabel = new Label("Slide to change eraser size:\n" + "(radius = " + (int) currentEraseSize/2 + " pixels)");
+        drawSize.setShowTickMarks(true);
+        drawSize.setShowTickLabels(true);
+        drawSize.setMajorTickUnit(10);
+        drawSize.setBlockIncrement(10);
+        drawSize.setOnMouseReleased(e -> changeEraseSize(e));
+        drawSize.setOnMouseReleased(e -> changeEraseSize(e)); */
+
         colorTextLabel = new BorderPane();
         colorTextLabel.setLeft(new Label("Color:\n(press Enter when done)"));
         colorTextBox = new TextField();
@@ -101,7 +155,8 @@ public class CSPaint extends Application {
         left.setStyle("-fx-background-color: pink");
         colorTextBox.setAlignment(Pos.BOTTOM_RIGHT);
         colorTextLabel.setCenter(colorTextBox);
-        left.getChildren().addAll(drawBt, eraseBt, circleBt, colorTextLabel, colorTextBox);
+        left.getChildren().addAll(save, drawBt, drawSizeLabel, drawSize, eraseBt,
+         circleBt, colorTextLabel, colorTextBox);
 
         ToggleGroup group = new ToggleGroup();
         drawBt.setToggleGroup(group);
@@ -135,12 +190,76 @@ public class CSPaint extends Application {
         stage.show();
     }
     /**
-     *
+     * Updates the number of shapes counted
      */
     public void updateShapeCount() {
         shapeCount++;
         shapeCountLabel.setText(Integer.toString(shapeCount));
     }
+    /**
+     * changes pen size
+     * @param event changing draw slider size
+     */
+    public void changeDrawSize(MouseEvent event) {
+        currentSize = drawSize.getValue();
+        drawSizeLabel.setText("Slide to change pen size:\n" + "(radius = " + (int) currentSize/2 + " pixels)");
+        gc.setLineWidth(currentSize);
+        //System.out.println(currentSize);
+    }
+
+/**
+     * changes erase size
+     * @param event changing erase slider size
+     */
+   /*  public void changeEraseSize(MouseEvent event) {
+        currentEraseSize = eraseSize.getValue();
+        eraseSizeLabel.setText("Slide to change eraser size:\n" + "(radius = " + (int) currentSize/2 + " pixels)");
+        gc.setLineWidth(currentEraseSize);
+        //System.out.println(currentSize);
+    } */
+
+    /**
+     * Saves the canvas as a picture
+     * @param event clicking the "save" button
+     */
+    public void savePic(MouseEvent event) {
+        //WritableImage snapshot = canvas.snapshot(new SnapshotParameters(), null);
+        //canvas.getChildren().add(new ImageView(snapshot));
+        /* WritableImage insert = new WritableImage(650, 450);
+        WritableImage newimage = new WritableImage(650, 450);
+
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+    // make a snapshot
+        srcView.snapshot(parameters, insert);
+
+        PixelReader reader = insert.getPixelReader();
+        PixelWriter writer = newimage.getPixelWriter();
+        WritablePixelFormat<IntBuffer> format = WritablePixelFormat.getIntArgbInstance();
+        // */
+        //
+        //WritableImage image = canvas.snapshot(null, null);
+        //BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        //ImageIO.write(bImage, format, file);
+        //ImageIO.write(BufferedImage image);
+        //Graphics g = image.getGraphics();
+        /* System.out.println("event occured");
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+        fileChooser.getExtentionFilters().add(extFilter);
+        File file = fileChooser.showSaveDialog(s);
+        if(file != null){
+            try {
+                WritableImage writableImage = new WritableImage(CANVAS_WIDTH, CANVAS_HEIGHT);
+                canvas.snapshot(null, writableImage);
+                RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                ImageIO.write(renderedImage, "png", file);
+            } catch (IOException ex) {
+                Logger.getLogger(JavaFX_DrawOnCanvas.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } */
+    }
+
     /**
     *
     * @param event event of key getting pressed
@@ -188,7 +307,8 @@ public class CSPaint extends Application {
             prevX = x;
             prevY = y;
             dragging = true;
-            gc.setLineWidth(4);
+            gc.setLineWidth(currentSize);
+            //System.out.println(currentSize);
             gc.setStroke(currentColor);
         } else if (eraseBt.isSelected()) {
             int x = (int) event.getX();
@@ -198,6 +318,7 @@ public class CSPaint extends Application {
             dragging = true;
             gc.setLineWidth(20);
             gc.setStroke(Color.WHITE);
+            //gc.setLineWidth(currentEraseSize);
         } else if (circleBt.isSelected()) {
             gc.setFill(currentColor);
             gc.fillOval((int) event.getX(), (int) event.getY(), 30, 30);
