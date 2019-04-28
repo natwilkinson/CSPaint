@@ -1,21 +1,3 @@
-// Natalie Wilkinson
-// Collaboration Statement:
-// In order to help learn course concepts, I worked on the homework with
-//[give the names of the people you
-// worked with], discussed homework topics and issues with [provide names of people], and/or
-// consulted related material that can be found at:
-    // https://www.geeksforgeeks.org/overriding-equals-method-in-java/
-    // https://www.java2s.com/Code/Java/JavaFX/ChangeLabeltextinButtonclickevent.htm
-    // https://docs.oracle.com/javase/tutorial/uiswing/events/mouselistener.html
-    // https://docs.oracle.com/javase/8/javafx/api/javafx/scene/canvas/GraphicsContext.html#setLineWidth-double-
-    // https://docs.oracle.com/javase/8/javafx/api/javafx/scene/canvas/GraphicsContext.html
-    // https://stackoverflow.com/questions/25252558/javafx-how-to-make-enter-key-submit-textarea/25252616
-    // https://docs.oracle.com/javafx/2/api/javafx/scene/input/KeyCode.html
-    // https://www.programcreek.com/java-api-examples/?class=javafx.scene.paint.Color&method=valueOf
-    // http://java-buddy.blogspot.com/2013/04/save-canvas-to-png-file.html
-    // http://computertechcode.blogspot.com/2016/02/package-javafxtest-import-javafx.html
-    // https://docs.oracle.com/javafx/2/canvas/jfxpub-canvas.htm
-
 // Imports for javafx
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -254,7 +236,6 @@ public class CSPaint extends Application {
             prevY = y;
             dragging = true;
             gc.setLineWidth(currentSize);
-            //System.out.println(currentSize);
             gc.setStroke(currentColor);
             gc.strokeLine(x, y, x, y);
         } else if (eraseBt.isSelected()) {
